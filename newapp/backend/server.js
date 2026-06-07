@@ -12,6 +12,8 @@ const upload = multer({
     dest: "Uploads/"
 })
 
+app.use(express.json())
+
 // app.get("/call-fastapi", async(req,res)=>{
 //     try{
 //         const response = await axios.post(
@@ -38,7 +40,6 @@ app.get("/",(req,res)=>{
 
 app.post("/upload",upload.single("PDF"),async (req,res)=>{
     // console.log(req.file.path);
-
     const pdfPath = req.file.path;
 
     const response = await axios.post(
@@ -51,6 +52,20 @@ app.post("/upload",upload.single("PDF"),async (req,res)=>{
     res.json(response.data);
     
     
+})
+
+app.post("/response",async (req,res)=>{
+    console.log(req.body)
+    const response = await axios.post(
+        "http://localhost:8000/response",
+        {
+            
+        }
+    );
+    res.json({
+        query: req.body.query
+    })
+
 })
 
 app.listen(5000,()=>{

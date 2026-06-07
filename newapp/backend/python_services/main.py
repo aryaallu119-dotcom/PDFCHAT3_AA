@@ -2,8 +2,12 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi import Request
 
-class PdfRequest(BaseModel):
-    pdf_path: str
+from Rag_service.applogic import getQueryResponse
+
+
+
+class QueryRequest(BaseModel):
+    query: str
 
 app = FastAPI()
 PDF_PATH_FOR_RAG = None
@@ -14,24 +18,18 @@ def home():
         "message": "FastAPI is working...."
     }
 
-# @app.post("/process")
-# def process_pdf(data:pdfRequest):
-#     return{
-#         "recieved_path": data.pdf_path
-#     }
-
-# @app.post("/process")
-# async def process_pdf(request: Request):
-#     body = await request.json()
-
-#     return {
-#         "body": body
-#     }
-
 @app.post("/process")
 def process_pdf(data: PdfRequest):
+    global PDF_PATH_FOR_RAG
     PDF_PATH_FOR_RAG = data.pdf_path
-    print(data.pdf_path)
+
+    getQueryResponse(PDF_PATH_FOR_RAG)
     return {
-        "received_path": PDF_PATH_FOR_RAG
+        "query_response": PDF_PATH_FOR_RAG
     }
+  
+@app.post("/response")  
+def query_response(data: QueryRequest):
+    query = data.query
+    
+

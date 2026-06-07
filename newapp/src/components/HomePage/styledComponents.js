@@ -30,7 +30,7 @@ export const Labels = styled.label`
 `
 export const InputEle = styled.input`
     width:100%;
-    background-color: rgba(16, 189, 242, 0.14);
+    background-color: rgba(16, 189, 242, 0.14) !important;
     border: 1px solid rgb(16, 189, 242);
     color: #ffffff;
     padding: 6px;
@@ -44,4 +44,5 @@ export const SubmitButton = styled.button`
     margin-top: 8px;
     border-radius: 4px;
     width: 30%;
+    cursor: pointer;
 `
