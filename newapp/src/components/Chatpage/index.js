@@ -2,7 +2,7 @@ import {useState,useEffect,useRef} from "react"
 import { useLocation } from "react-router-dom";
 import { FaCircleArrowUp } from "react-icons/fa6";
 import {MagnifyingGlass} from 'react-loader-spinner'
-import {ChatContainer,InputTab,InputBox,MessagesContainer,EnterButn} from "./styledComponents"
+import {ChatContainer,InputTab,InputBox,MessagesContainer,EnterButn,LoadingContainer} from "./styledComponents"
 import Message from "../Message"
 const Chatpage = () =>{
     const {state} = useLocation()
@@ -90,8 +90,9 @@ const Chatpage = () =>{
                     <Message key={each.id} msgcontent={each.message} msgsource={each.sender}/>
                 ))}
                 {isLoading && (
-                    <MagnifyingGlass  color="rgba(0, 192, 251, 0.28)" height="40" width="40" />
-                        
+                    <LoadingContainer>
+                        <MagnifyingGlass  color="rgb(19, 18, 18)" height="40" width="40" />
+                    </LoadingContainer>
                 )}
                 <div ref={messagesEndRef} />
             </MessagesContainer>

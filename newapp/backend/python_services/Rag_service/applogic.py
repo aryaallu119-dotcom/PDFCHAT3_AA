@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import re
+import shutil
 
 # Load environment variables from the correct path
 env_path = os.path.join(os.path.dirname(__file__), "app.env")
@@ -31,9 +32,28 @@ def Rag_core(given_data):
             model_name="sentence-transformers/all-mpnet-base-v2"
         )
         
+        # If new PDF is being indexed, clear old data
+        if given_data.get("status") and "pdf_path" in given_data:
+            print("New PDF session detected - clearing old vector store...")
+            # Delete the persistent database directory
+            db_path = "./chroma_langchain_db"
+            if os.path.exists(db_path):
+                try:
+                    shutil.rmtree(db_path)
+                    print(f"Deleted old database at {db_path}")
+                except Exception as e:
+                    print(f"Could not delete database: {e}")
+            
+            if vector_store is not None:
+                try:
+                    vector_store.delete_collection()
+                except:
+                    pass
+            vector_store = None
+        
         # Initialize vector store (create if doesn't exist)
         if vector_store is None:
-            print("Initializing vector store...")
+            print("Initializing fresh vector store...")
             vector_store = Chroma(
                 collection_name="input_collection",
                 embedding_function=embeddings,
@@ -97,7 +117,8 @@ def Rag_core(given_data):
 
         def ask_about_pdf(user_query):
             context, source_docs = retrieve_context(user_query, k=5)
-            print(f"the pdf lines are {context}")
+            # print(f"the pdf lines are {context}")
+            print(f"t********************the input query is  {user_query}")
             system_message = f"""You are a helpful chatbot(PDFchart).
                                 Use only the following pieces of context to answer the 
                                 question. Don't make up any new information:{context} as
@@ -107,8 +128,12 @@ def Rag_core(given_data):
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_query}
             ]
-
-            response = model.invoke(messages)
+            try:
+                response = model.invoke(messages)
+            except Exception as e:
+                print(f"LLM model Error:{e}")
+                
+            
 
             return {
                 "answer": response.content,

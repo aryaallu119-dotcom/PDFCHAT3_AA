@@ -1,7 +1,7 @@
 import {useNavigate} from "react-router-dom"
 import {useState} from "react"
 import {Watch} from 'react-loader-spinner'
-import {FormContainer, FormElement,LoadingText,Heading,Labels,InputEle,SubmitButton} from "./styledComponents"
+import {FormContainer, FormElement,LoadingContainer,LoadingText,Heading,Labels,InputEle,SubmitButton} from "./styledComponents"
 const Home =(props) =>{
     const navigate = useNavigate()
     const [topic,setTopic] = useState("")
@@ -48,12 +48,10 @@ const Home =(props) =>{
     }
 
     const loadingView = () =>(
-        <div className="loader-container">
-            <div className="loader-container" data-testid="loader">
+            <LoadingContainer>
                 <Watch  color="rgba(0, 192, 251, 0.28)" height="60" width="60" />
-                <LoadingText>Processing...</LoadingText>
-            </div>
-        </div>
+                <LoadingText>Processing PDF...</LoadingText>
+            </LoadingContainer>
     )
 
     const renderInputForm = ()=>(

@@ -22,6 +22,15 @@ export const FormElement = styled.form`
 
 export const LoadingText = styled.p`
     color:rgba(0, 192, 251, 0.28);
+    text-align:center;
+`
+export const LoadingContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 20px;
+    margin-top: 12px;
 `
 
 export const Heading = styled.h1`

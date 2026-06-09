@@ -52,18 +52,18 @@ export const EnterButn = styled.button`
 export const MessagesContainer = styled.div`
     flex: 1;
     width: 100%;
-    background-color: #36dbf41b;
+    background-color: #36dbf414;
     color: #ffffff;
     display: flex;
     flex-direction: column;
-    justify-content: start;
+    justify-content: flex-start;
     gap: 12px;
     margin: 12px 24px;
     margin-bottom: 0px;
     padding: 12px;
     margin-bottom: 4px;
     border-radius: 8px 8px 0px 0px;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -71,4 +71,16 @@ export const MessagesContainer = styled.div`
     &::-webkit-scrollbar {
         display: none;
     }
+`
+
+export const LoadingContainer = styled.div`
+    width:79px;
+    background-image: url('https://res.cloudinary.com/da00pyggy/image/upload/v1781030761/92e1bc06-9928-4eda-929e-c9b2e13f7ee7.png');
+    background-size: cover;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 20px;
+    margin: 8px;
+    margin-top: 12px;
 `
