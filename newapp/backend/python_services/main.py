@@ -8,10 +8,12 @@ from Rag_service.applogic import Rag_core
 class PdfRequest(BaseModel):
     pdf_path: str
     topic: str
+    session_id: str
 
 class ResponseRequest(BaseModel):
     query: str
     status:str
+    session_id: str
 
 app = FastAPI()
 PDF_PATH_FOR_RAG = None
@@ -29,10 +31,11 @@ def process_pdf(data: PdfRequest):
         PDF_PATH_FOR_RAG = data.pdf_path
         print(data.topic)
         query_data ={
+        "session_id": data.session_id,
         "query": "Greetings to you!",
         "status": True,
         "pdf_path": data.pdf_path,
-        "topic_name": data.topic
+        "topic_name": data.topic,
         }
         query_response = Rag_core(query_data)
         print(query_response)

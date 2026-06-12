@@ -59,7 +59,8 @@ def Rag_core(given_data):
         embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-mpnet-base-v2"
         )
-        
+        session_id = given_data.get("session_id", "default")
+        print(f"got session_id:{session_id}")
         topic_name = given_data.get("topic_name", "default")
         print(f"Processing topic: {topic_name}")
         
@@ -168,6 +169,7 @@ def Rag_core(given_data):
 
     try:
         if given_data.get("status") and "pdf_path" in given_data:
+            print(f"Got session_id:{session_id}")
             # New PDF - index it
             print(f"Indexing PDF for topic: {topic_name}")
             Pdf_Indexing(given_data["pdf_path"], vector_store)
@@ -183,6 +185,7 @@ def Rag_core(given_data):
             # print(result["context_used"])
             print(result["answer"])
             answer = clean_response(result["answer"])
+            
             return answer
         else:
             raise ValueError("Invalid request: must provide 'query' and optionally 'pdf_path'")

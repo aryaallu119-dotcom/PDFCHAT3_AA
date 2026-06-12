@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors")
 const multer = require("multer")
 const fs = require("fs");
+const { Form } = require("react-router-dom");
 
 
 
@@ -65,13 +66,15 @@ app.get("/",(req,res)=>{
 app.post("/upload/:topic",upload.single("PDF"),async (req,res)=>{
     // console.log(req.file.path);
     const pdfPath = req.file.path;
-    console.log(topicName)
+    const {session_id}= req.body
+    console.log(session_id)
     try{
         const response = await axios.post(
             "http://localhost:8000/process",
             {
                 pdf_path: pdfPath,
-                topic: topicName
+                topic: topicName,
+                session_id: session_id
             }
         );
         res.json(response.data);
@@ -84,12 +87,14 @@ app.post("/upload/:topic",upload.single("PDF"),async (req,res)=>{
 
 app.post("/response",async (req,res)=>{
     console.log(req.body.status)
+    const {session_id}= req.body
     console.log("send request to python(port 8000)")
     const response = await axios.post(
         "http://localhost:8000/response",
         {
             query: req.body.query,
-            status:req.body.status
+            status:req.body.status,
+            session_id: session_id
         }
     );
     console.log(response.data)

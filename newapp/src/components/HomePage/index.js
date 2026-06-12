@@ -1,5 +1,6 @@
 import {useNavigate} from "react-router-dom"
 import {useState} from "react"
+import {v4 as uuidv4} from 'uuid'
 import {Watch} from 'react-loader-spinner'
 import {FormContainer, FormElement,LoadingContainer,LoadingText,Heading,Labels,InputEle,SubmitButton} from "./styledComponents"
 const Home =(props) =>{
@@ -12,7 +13,10 @@ const Home =(props) =>{
         try{
             console.log("uploading started")
             const formData = new FormData();
+            const session_id = uuidv4()
+            console.log(session_id)
             formData.append("PDF",file)
+            formData.append("session_id",session_id)
             const response = await fetch(
                 `http://localhost:5000/upload/${topic}`,
                 {
