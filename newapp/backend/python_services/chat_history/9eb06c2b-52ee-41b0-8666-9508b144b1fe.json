@@ -1,0 +1,10 @@
+[
+    {
+        "role": "user",
+        "content": "Greetings to you!"
+    },
+    {
+        "role": "assistant",
+        "content": "I could not find this information in the uploaded PDF."
+    }
+]
