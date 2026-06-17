@@ -8,12 +8,12 @@ import shutil
 env_path = os.path.join(os.path.dirname(__file__), "app.env")
 load_dotenv(env_path)
 
-from langchain.chat_models import init_chat_model
+from langchain_core.language_models.chat_models import init_chat_model
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
-from pymongo import MongoClient
+
 
 #Saved upto here 143
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -44,7 +44,6 @@ def load_chat_history(session_id):
         return json.load(file)
 
 def get_vector_store(topic_name, embeddings):
-    """Load or create a persistent vector store for a topic from disk"""
     # Sanitize topic name for folder path
     safe_topic_name = topic_name.strip().lower()
     safe_topic_name = re.sub(r'[^a-z0-9\s]', '', safe_topic_name) 
