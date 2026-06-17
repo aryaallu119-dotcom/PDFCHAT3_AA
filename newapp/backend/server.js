@@ -38,26 +38,6 @@ const upload = multer({ storage })
 
 app.use(express.json())
 
-// app.get("/call-fastapi", async(req,res)=>{
-//     try{
-//         const response = await axios.post(
-//             "http://localhost:8000/process",
-//             {
-//                 pdf_path: "/Uploads/21871lc9dfr82gs7729y640ert464783"
-//             }
-//         );  
-    
-//         res.json(response.data)
-
-//     }catch (error) {
-//         console.log("ERROR:");
-//         res.status(500).json({
-//             error: "FastAPI call failed"
-//         });
-
-//     }
-// })
-
 app.get("/",(req,res)=>{
     res.send("Backend Working TNS....")
 })
@@ -69,7 +49,7 @@ app.post("/upload/:topic",upload.single("PDF"),async (req,res)=>{
     console.log(session_id)
     try{
         const response = await axios.post(
-            "http://localhost:8000/process",
+            "https://pdfchat-143.onrender.com/process",
             {
                 pdf_path: pdfPath,
                 topic: topicName,
@@ -94,7 +74,7 @@ app.post("/response",async (req,res)=>{
     console.log("send request to python(port 8000)")
     try{
         const response = await axios.post(
-            "http://localhost:8000/response",
+            "https://pdfchat-143.onrender.com/response",
             {
                 query: req.body.query,
                 status:req.body.status,
