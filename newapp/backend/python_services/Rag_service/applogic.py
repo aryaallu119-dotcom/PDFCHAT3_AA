@@ -11,12 +11,14 @@ load_dotenv(env_path)
 from langchain.chat_models import init_chat_model
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
+# from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_chroma import Chroma
 
 
 #Saved upto here 143
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+HF_TOKEN = os.getenv("HF_TOKEN")
 print(f"Debug: GROQ_API_KEY loaded: {'Yes' if GROQ_API_KEY else 'No'}")
 chat_session = {}
 
@@ -78,9 +80,14 @@ def clean_response(text):
 def Rag_core(given_data):
     try:
         # Load embeddings
-        embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-mpnet-base-v2"
+        embeddings = HuggingFaceInferenceAPIEmbeddings(
+            api_key= HF_TOKEN,
+            model_name="sentence-transformers/all-MiniLM-L6-v2"
         )
+        # embeddings = HuggingFaceEmbeddings(
+        #     model_name="sentence-transformers/all-mpnet-base-v2"
+        # )
+        
 
         session_id = given_data.get("session_id", "default")
         print(f"got session_id: {session_id}")
