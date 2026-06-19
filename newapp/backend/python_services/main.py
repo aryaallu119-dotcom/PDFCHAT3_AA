@@ -5,10 +5,9 @@ from fastapi import Request
 from Rag_service.applogic import Rag_core
 
 
-class PdfRequest(BaseModel):
-    pdf_path: str
-    topic: str
-    session_id: str
+from fastapi import UploadFile, File, Form
+import tempfile
+import os
 
 class ResponseRequest(BaseModel):
     query: str
@@ -17,7 +16,7 @@ class ResponseRequest(BaseModel):
     topic_name: str
 
 app = FastAPI()
-PDF_PATH_FOR_RAG = None
+# PDF_PATH_FOR_RAG = None
 
 @app.get("/")
 def home():
@@ -25,36 +24,109 @@ def home():
         "message": "FastAPI is working...."
     }
 
+# @app.post("/process")
+# def process_pdf(data: PdfRequest):
+#     try:
+#         global PDF_PATH_FOR_RAG
+#         PDF_PATH_FOR_RAG = data.pdf_path
+#         print(data.topic)
+#         print(data.session_id)
+#         query_data ={
+#         "session_id": data.session_id,
+#         "query": "Greetings to you!",
+#         "status": True,
+#         "pdf_path": data.pdf_path,
+#         "topic_name": data.topic,
+#         }
+#         query_response = Rag_core(query_data)
+#         print(query_response)
+#         return {
+#             "response_msg": query_response,
+#             "sender": "error",
+#             "pdf_path": data.pdf_path
+#         }
+#     except Exception as e:
+#         print(f"Error in /process endpoint: {str(e)}")
+#         import traceback
+#         traceback.print_exc()
+#         return {
+#             "error": str(e),
+#             "response_msg": f"Error processing PDF: {str(e)}",
+#             "sender": "error"
+#         }, 500
+ 
+
+
 @app.post("/process")
-def process_pdf(data: PdfRequest):
+async def process_pdf(
+    pdf: UploadFile = File(...),
+    topic: str = Form(...),
+    session_id: str = Form(...)
+):
+    pdf_path = None
+
     try:
-        global PDF_PATH_FOR_RAG
-        PDF_PATH_FOR_RAG = data.pdf_path
-        print(data.topic)
-        print(data.session_id)
-        query_data ={
-        "session_id": data.session_id,
-        "query": "Greetings to you!",
-        "status": True,
-        "pdf_path": data.pdf_path,
-        "topic_name": data.topic,
+        # global PDF_PATH_FOR_RAG
+
+        # Read uploaded PDF
+        contents = await pdf.read()
+
+        # Create temporary PDF file
+        temp_pdf = tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".pdf"
+        )
+
+        temp_pdf.write(contents)
+        temp_pdf.close()
+
+        pdf_path = temp_pdf.name
+        # PDF_PATH_FOR_RAG = pdf_path
+
+        print(topic)
+        print(session_id)
+        print(f"📄 Processing PDF: {pdf_path}")
+
+        query_data = {
+            "session_id": session_id,
+            "query": "Greetings to you!",
+            "status": True,
+            "pdf_path": pdf_path,
+            "topic_name": topic,
         }
+        
+        print(f"Temporary PDF Path: {pdf_path}")
+        print(f"File Exists: {os.path.isfile(pdf_path)}")
+
         query_response = Rag_core(query_data)
+
         print(query_response)
+
         return {
             "response_msg": query_response,
-            "sender": "error",
-            "pdf_path": data.pdf_path
+            "sender": "bot",
+            "pdf_path": pdf_path
         }
+
     except Exception as e:
         print(f"Error in /process endpoint: {str(e)}")
         import traceback
         traceback.print_exc()
+
         return {
             "error": str(e),
             "response_msg": f"Error processing PDF: {str(e)}",
             "sender": "error"
         }, 500
+
+    finally:
+        if pdf_path and os.path.exists(pdf_path):
+            try:
+                os.remove(pdf_path)
+                print(f"🗑️ Temporary PDF deleted: {pdf_path}")
+            except Exception as e:
+                print(f"Error deleting temp PDF: {e}")
+ 
   
 @app.post("/response")  
 def query_response(data: ResponseRequest):

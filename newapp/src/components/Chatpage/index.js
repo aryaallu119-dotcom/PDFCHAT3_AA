@@ -33,7 +33,7 @@ const Chatpage = () =>{
             message: state.query_response,
             sender: "bot"
             }])
-        },[])  // Empty array - runs only once on mount
+        },[])  
     
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -49,7 +49,7 @@ const Chatpage = () =>{
         try{
             console.log("sent request to nodejs(port 5000)")
             const response = await fetch(
-                "https://pdf-chat-node-backend.onrender.com/response",
+                "http://localhost:5000/response",
                 {
                     method: "POST",
                     headers:{

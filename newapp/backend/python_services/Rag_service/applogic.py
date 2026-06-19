@@ -8,11 +8,10 @@ import shutil
 env_path = os.path.join(os.path.dirname(__file__), "app.env")
 load_dotenv(env_path)
 
-from langchain.chat_models import init_chat_model
+from langchain_groq import ChatGroq
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-# from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 
 
@@ -20,6 +19,7 @@ from langchain_chroma import Chroma
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 HF_TOKEN = os.getenv("HF_TOKEN")
 print(f"Debug: GROQ_API_KEY loaded: {'Yes' if GROQ_API_KEY else 'No'}")
+print(f"Debug: HF_TOKEN loaded: {'Yes' if HF_TOKEN else 'No'}")
 chat_session = {}
 
 def save_chat_history(session_id, messages):
@@ -75,18 +75,15 @@ def get_vector_store(topic_name, embeddings):
 
 def clean_response(text):
     cleaned = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+    
     return cleaned.strip()
 
 def Rag_core(given_data):
     try:
         # Load embeddings
-        embeddings = HuggingFaceInferenceAPIEmbeddings(
-            api_key= HF_TOKEN,
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        embeddings = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-mpnet-base-v2"
         )
-        # embeddings = HuggingFaceEmbeddings(
-        #     model_name="sentence-transformers/all-mpnet-base-v2"
-        # )
         
 
         session_id = given_data.get("session_id", "default")
@@ -121,15 +118,11 @@ def Rag_core(given_data):
         """
         # Adjust path to work from python_services directory
         # If path doesn't exist, try with parent directory
-        if not os.path.exists(file_path):
-            adjusted_path = os.path.join("..", file_path)
-            if os.path.exists(adjusted_path):
-                file_path = adjusted_path
-        
         print(f"\n📄 Processing PDF: {file_path}")
-        if not os.path.exists(file_path):
+
+        if not os.path.isfile(file_path):
             raise FileNotFoundError(f"PDF file not found: {file_path}")
-        
+            
         loader = PyPDFLoader(file_path)
         docs = loader.load()
         print(f"  ✓ Loaded {len(docs)} pages from PDF")
@@ -151,10 +144,10 @@ def Rag_core(given_data):
         sample = vector_store.get(limit=1, include=["embeddings", "documents"])
 
     if not GROQ_API_KEY:
-        raise ValueError("GOOGLE_API_KEY not set in environment")
+        raise ValueError("GROQ_API_KEY not set in environment")
     
-    model = init_chat_model(
-        "groq:qwen/qwen3-32b",
+    model = ChatGroq(
+        model="llama-3.3-70b-versatile",
         api_key=GROQ_API_KEY,
     )
 
@@ -187,6 +180,12 @@ def Rag_core(given_data):
                                     If the PDF does not contain enough information to answer the question, politely say that the information was not found in the 
                                     uploaded PDF.(initially inform its not there in provided contex and bring back to given context again and dont ask for new context(ignore it))
 
+                                    provide horizontal seperation lines in between the response section for clarity easy understanding of each part of it 
+                                    Never reveal your reasoning process.
+
+                                    Do not output <think>, reasoning, analysis, internal thoughts, or step-by-step deliberation.
+
+                                    Return only the final answer.
                                     Do not make up facts that are not supported by the PDF context.(halucinate)
                                     try to extend the convo within contex for further assistance(only inside pdf context)
                                     Don't make up any new information:
@@ -246,6 +245,9 @@ def Rag_core(given_data):
             print(f"Got session_id:{session_id}")
             # New PDF - index it
             print(f"Indexing PDF for topic: {topic_name}")
+            pdf_path = given_data["pdf_path"]
+
+            print(f"Received PDF : {pdf_path}")
 
             Pdf_Indexing(given_data["pdf_path"], vector_store)
             result = Quering(given_data["query"], vector_store)

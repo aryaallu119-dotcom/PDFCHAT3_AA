@@ -28,8 +28,9 @@ const Home =(props) =>{
             console.log(session_id)
             formData.append("PDF",file)
             formData.append("session_id",session_id)
+            // "http://localhost:5000/upload",
             const response = await fetch(
-                `https://pdf-chat-node-backend.onrender.com/upload/${topic}`,
+                `http://localhost:5000/upload/${topic}`,
                 {
                     method: "POST",
                     body: formData,
@@ -41,6 +42,9 @@ const Home =(props) =>{
             console.log("uploaded file")
             const data = await response.json()
             console.log(data)
+            if(data[1] === 500){
+                    throw new Error(`Uploaded but not processed: ${data[0].error}`)
+            }
             setUploadStatus(UploadStatusConstants.success)
             navigate("/chat",{
                 state:{
@@ -50,7 +54,7 @@ const Home =(props) =>{
                 }
             })
         }catch(error){
-            console.log(`Error at uploadingfile: ${error}`)
+            console.log(`Error at uploading and processing file: ${error}`)
             setUploadStatus(UploadStatusConstants.retry)
         }
         
