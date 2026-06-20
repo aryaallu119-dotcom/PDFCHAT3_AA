@@ -13,37 +13,18 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
-
+from config.mongodb import (
+    create_session,
+    session_exists,
+    save_chat_turn,
+    get_chat_history
+)
 
 #Saved upto here 143
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-HF_TOKEN = os.getenv("HF_TOKEN")
+
 print(f"Debug: GROQ_API_KEY loaded: {'Yes' if GROQ_API_KEY else 'No'}")
-print(f"Debug: HF_TOKEN loaded: {'Yes' if HF_TOKEN else 'No'}")
-chat_session = {}
 
-def save_chat_history(session_id, messages):
-
-    filepath = f"./chat_history/{session_id}.json"
-
-    with open(filepath, "w", encoding="utf-8") as file:
-        json.dump(
-            messages,
-            file,
-            ensure_ascii=False,
-            indent=4
-        )
-
-
-def load_chat_history(session_id):
-
-    filepath = f"./chat_history/{session_id}.json"
-
-    if not os.path.exists(filepath):
-        return []
-
-    with open(filepath, "r", encoding="utf-8") as file:
-        return json.load(file)
 
 def get_vector_store(topic_name, embeddings):
     # Sanitize topic name for folder path
@@ -89,9 +70,23 @@ def Rag_core(given_data):
         session_id = given_data.get("session_id", "default")
         print(f"got session_id: {session_id}")
 
-        history = load_chat_history(session_id)
+        topic_name = given_data.get("topic_name")        
+        print(f"got topic_name: {topic_name}")
+
+        if not session_exists(session_id):
+            print("Creating Mongodb Session id")
+            create_session(
+                session_id,
+                topic_name
+            )
+
+        history = get_chat_history(session_id)
+
         recent_history = history[-2:]
-        print(f"Recent history:{recent_history}")
+
+        print(f"Recent history: {recent_history}")
+
+
         topic_name = given_data.get("topic_name", "default")
         print(f"Processing topic: {topic_name}")
 
@@ -180,12 +175,11 @@ def Rag_core(given_data):
                                     If the PDF does not contain enough information to answer the question, politely say that the information was not found in the 
                                     uploaded PDF.(initially inform its not there in provided contex and bring back to given context again and dont ask for new context(ignore it))
 
-                                    provide horizontal seperation lines in between the response section for clarity easy understanding of each part of it 
+                                    provide horizontal seperation lines in between the response section for clarity easy understanding of each part of it only if required.
                                     Never reveal your reasoning process.
 
                                     Do not output <think>, reasoning, analysis, internal thoughts, or step-by-step deliberation.
 
-                                    Return only the final answer.
                                     Do not make up facts that are not supported by the PDF context.(halucinate)
                                     try to extend the convo within contex for further assistance(only inside pdf context)
                                     Don't make up any new information:
@@ -205,31 +199,21 @@ def Rag_core(given_data):
             )
 
             # pprint(messages)
-
+            
             try:
                 response = model.invoke(messages)
             except Exception as e:
                 print(f"LLM model Error:{e}")
                 raise  
-            
+
             answer = clean_response(response.content)
-            history.extend([
-                {
-                    "role": "user",
-                    "content": user_query
-                },
-                {
-                    "role": "assistant",
-                    "content": answer
-                }
-            ])
-
-            save_chat_history(
-                session_id,
-                history
-            )
+            
+            saved = save_chat_turn(session_id,user_query,answer)
             # pprint(f"chart Session:{chat_session}")
-
+            if not saved:
+                print("The db is not updated with history")
+            else:
+                print("Db is updated")
 
             return {
                 "answer": response.content,

@@ -8,4 +8,5 @@ export const MessageItemContainer = styled.div`
     padding: 0px 16px;
     word-break: break-word;
     overflow-wrap: break-word;
+    width: ${props => props.position === 'user' ? 'auto' : '100%' };
 `

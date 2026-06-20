@@ -31,3 +31,4 @@ yarn-error.log*
 
 chroma_langchain_db/
 char_history/
+backend/python_services/chat_history/0

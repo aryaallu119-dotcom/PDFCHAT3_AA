@@ -36,7 +36,7 @@ const Chatpage = () =>{
         },[])  
     
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block:"center" })
     }, [responseMsgs])
     
     const inputChange =(event)=>{

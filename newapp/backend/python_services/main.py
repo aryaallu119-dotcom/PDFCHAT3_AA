@@ -96,7 +96,7 @@ async def process_pdf(
         }
         
         print(f"Temporary PDF Path: {pdf_path}")
-        print(f"File Exists: {os.path.isfile(pdf_path)}")
+        print(f"Temp File Exists: {os.path.isfile(pdf_path)}")
 
         query_response = Rag_core(query_data)
 
