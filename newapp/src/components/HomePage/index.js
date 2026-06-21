@@ -28,9 +28,8 @@ const Home =(props) =>{
             console.log(session_id)
             formData.append("PDF",file)
             formData.append("session_id",session_id)
-            // "http://localhost:5000/upload",
             const response = await fetch(
-                `http://localhost:5000/upload/${topic}`,
+                `https://pdfchat3-aa.onrender.com/upload/${topic}`,
                 {
                     method: "POST",
                     body: formData,

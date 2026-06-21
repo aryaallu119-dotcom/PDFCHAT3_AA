@@ -49,7 +49,7 @@ const Chatpage = () =>{
         try{
             console.log("sent request to nodejs(port 5000)")
             const response = await fetch(
-                "http://localhost:5000/response",
+                "https://pdfchat3-aa.onrender.com/response",
                 {
                     method: "POST",
                     headers:{

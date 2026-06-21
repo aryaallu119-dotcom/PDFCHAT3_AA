@@ -33,42 +33,6 @@ app.get("/",(req,res)=>{
     res.send("Backend Working TNS....")
 })
 
-// app.post("/upload/:topic", upload.single("PDF"), async (req,res)=>{
-//     console.log("========== FILE ==========");
-//     console.log(JSON.stringify(req.file, null, 2));
-//     const pdfPath = req.file.path;
-//     const {session_id}= req.body
-//     const topicName = req.params.topic;
-//     console.log(session_id)
-//     try{
-//         const response = await axios.post(
-//             "http://localhost:8000/process",
-//             {
-//                 pdf_path: pdfPath,
-//                 topic: topicName,
-//                 session_id: session_id
-//             }
-//         );
-//         res.json(response.data);
-//     }catch(error){
-//         console.log("========== ERROR ==========");
-
-//         console.log(error.message);
-
-//         if(error.response){
-//             console.log(error.response.data);
-//         }
-
-//         console.log(error.stack);
-
-//         res.status(500).json({
-//             error:"Failed to process PDF",
-//             details:error.message
-//         });
-
-//     }
-    
-// })
 
 app.post("/upload/:topic", upload.single("PDF"), async (req, res) => {
 
@@ -136,7 +100,7 @@ app.post("/upload/:topic", upload.single("PDF"), async (req, res) => {
         // console.log(form);
 
         const response = await axios.post(
-            "http://localhost:8000/process",
+            "https://pdfchat3-aa-fastapi.onrender.com/process",
             form,
             {
                 headers: form.getHeaders()
@@ -173,7 +137,7 @@ app.post("/response",async (req,res)=>{
     console.log("send request to python(port 8000)")
     try{
         const response = await axios.post(
-            "http://localhost:8000/response",
+            "https://pdfchat3-aa-fastapi.onrender.com/response",
             {
                 query: req.body.query,
                 status:req.body.status,
