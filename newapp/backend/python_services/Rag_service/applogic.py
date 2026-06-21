@@ -11,8 +11,10 @@ load_dotenv(env_path)
 from langchain_groq import ChatGroq
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
+# from langchain_huggingface import HuggingFaceEmbeddings
+# from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_chroma import Chroma
+from utils.embeddings import HFEmbedding
 from config.mongodb import (
     create_session,
     session_exists,
@@ -22,17 +24,19 @@ from config.mongodb import (
 
 #Saved upto here 143
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 print(f"Debug: GROQ_API_KEY loaded: {'Yes' if GROQ_API_KEY else 'No'}")
+print(f"Debug: HF_TOKEN loaded: {'Yes' if HF_TOKEN else 'No'}")
 
 
-def get_vector_store(topic_name, embeddings):
+def get_vector_store(topic_name,session_id, embeddings):
     # Sanitize topic name for folder path
     safe_topic_name = topic_name.strip().lower()
     safe_topic_name = re.sub(r'[^a-z0-9\s]', '', safe_topic_name) 
     safe_topic_name = re.sub(r'\s+', '_', safe_topic_name)  
     
-    db_path = f"./chroma_langchain_db/{safe_topic_name}"
+    db_path = f"./chroma_langchain_db/{safe_topic_name}/{session_id}"
     
     # Check if database already exists on disk
     if os.path.exists(db_path):
@@ -62,15 +66,24 @@ def clean_response(text):
 def Rag_core(given_data):
     try:
         # Load embeddings
-        embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-mpnet-base-v2"
-        )
-        
+        # embeddings = HuggingFaceEmbeddings(
+        #     model_name="sentence-transformers/all-mpnet-base-v2"
+        # )
+        # type-2(to avoid sentence-transformers installing....)
+        # embeddings = HuggingFaceEndpointEmbeddings(
+        #     api_key= HF_TOKEN,
+        #     model_name="sentence-transformers/all-MiniLM-L6-v2"
+        # )
+        # type-3(working)
+        embeddings = HFEmbedding(HF_TOKEN)
+
+        # print(type(embeddings3.embed_query("Hello")))
+        # print(len(embeddings3.embed_query("Hello")))
 
         session_id = given_data.get("session_id", "default")
         print(f"got session_id: {session_id}")
 
-        topic_name = given_data.get("topic_name")        
+        topic_name = given_data.get("topic_name")      
         print(f"got topic_name: {topic_name}")
 
         if not session_exists(session_id):
@@ -86,14 +99,11 @@ def Rag_core(given_data):
 
         print(f"Recent history: {recent_history}")
 
-
         topic_name = given_data.get("topic_name", "default")
         print(f"Processing topic: {topic_name}")
-
-        
         
         # Load/create persistent vector store for this topic
-        vector_store = get_vector_store(topic_name, embeddings)
+        vector_store = get_vector_store(topic_name, session_id, embeddings)
             
     except Exception as e:
         print(f"Error initializing vector store: {str(e)}")
@@ -176,12 +186,16 @@ def Rag_core(given_data):
                                     uploaded PDF.(initially inform its not there in provided contex and bring back to given context again and dont ask for new context(ignore it))
 
                                     provide horizontal seperation lines in between the response section for clarity easy understanding of each part of it only if required.
+                                    
                                     Never reveal your reasoning process.
+
+                                    Answer directly without mentioning the PDF unless the user asks.
 
                                     Do not output <think>, reasoning, analysis, internal thoughts, or step-by-step deliberation.
 
-                                    Do not make up facts that are not supported by the PDF context.(halucinate)
-                                    try to extend the convo within contex for further assistance(only inside pdf context)
+                                    Do not make up facts that are not supported by the PDF context.(halucinate).
+
+                                    Try to extend the convo within contex for further assistance(only inside pdf context).
                                     Don't make up any new information:
                                 Context:
                                 {context}"""

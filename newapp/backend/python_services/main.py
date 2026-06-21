@@ -24,38 +24,6 @@ def home():
         "message": "FastAPI is working...."
     }
 
-# @app.post("/process")
-# def process_pdf(data: PdfRequest):
-#     try:
-#         global PDF_PATH_FOR_RAG
-#         PDF_PATH_FOR_RAG = data.pdf_path
-#         print(data.topic)
-#         print(data.session_id)
-#         query_data ={
-#         "session_id": data.session_id,
-#         "query": "Greetings to you!",
-#         "status": True,
-#         "pdf_path": data.pdf_path,
-#         "topic_name": data.topic,
-#         }
-#         query_response = Rag_core(query_data)
-#         print(query_response)
-#         return {
-#             "response_msg": query_response,
-#             "sender": "error",
-#             "pdf_path": data.pdf_path
-#         }
-#     except Exception as e:
-#         print(f"Error in /process endpoint: {str(e)}")
-#         import traceback
-#         traceback.print_exc()
-#         return {
-#             "error": str(e),
-#             "response_msg": f"Error processing PDF: {str(e)}",
-#             "sender": "error"
-#         }, 500
- 
-
 
 @app.post("/process")
 async def process_pdf(
@@ -100,7 +68,7 @@ async def process_pdf(
 
         query_response = Rag_core(query_data)
 
-        print(query_response)
+        # print(query_response)
 
         return {
             "response_msg": query_response,
@@ -137,9 +105,9 @@ def query_response(data: ResponseRequest):
         "session_id": data.session_id,
         "topic_name": data.topic_name
         }
-        print(data.session_id)
+        # print(data.session_id)
         query_response = Rag_core(query_data)
-        print(query_response)
+        # print(query_response)
         return {
             "response_msg": query_response,
             "sender": "bot"
