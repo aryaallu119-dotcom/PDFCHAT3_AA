@@ -2,6 +2,7 @@ fastapi==0.138.0
 
 uvicorn
 pypdf
+certifi
 chromadb
 langchain
 langchain-core

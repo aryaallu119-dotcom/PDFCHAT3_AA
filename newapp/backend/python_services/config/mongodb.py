@@ -1,19 +1,19 @@
 import os
+import certifi
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
-env_path = os.path.join(os.path.dirname(__file__), "mong.env")
-load_dotenv(env_path)
-
+load_dotenv()
 
 MONGODB_URI = os.getenv("MONGODB_URI")
-print(f"Debug: MONGODB_URI loaded: {'Yes' if MONGODB_URI else 'No'}")
 
-
-client = MongoClient(MONGODB_URI)
+client = MongoClient(
+    MONGODB_URI,
+    tls=True,
+    tlsCAFile=certifi.where()
+)
 
 db = client["PDFCHAT"]
-
 chat_collection = db["chat_history"]
 
 try:
