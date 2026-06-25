@@ -8,6 +8,10 @@ export const FormContainer = styled.div`
     align-items: center;
     background-image: url('https://res.cloudinary.com/da00pyggy/image/upload/v1780422843/opoy7_obpl9c.jpg');
     background-size: cover;
+
+    @media (max-width: 768px) {
+        background-image: url('https://res.cloudinary.com/da00pyggy/image/upload/v1782409611/copy_of_8e8f4f38-d842-4ff4-aa2a-4651533096dc.png');
+    }
 `
 
 export const FormElement = styled.form`
