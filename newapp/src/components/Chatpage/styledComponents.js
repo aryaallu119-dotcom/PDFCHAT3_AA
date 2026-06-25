@@ -12,6 +12,10 @@ export const ChatContainer= styled.div`
     justify-content: start;
     align-items: center;
     overflow: hidden;
+
+    @media (max-width: 768px) {
+        background-image: url('https://res.cloudinary.com/da00pyggy/image/upload/v1782409611/copy_of_8e8f4f38-d842-4ff4-aa2a-4651533096dc.png');
+    }
 `
 export const InputTab = styled.form`
     background-color: #ffffff61;
