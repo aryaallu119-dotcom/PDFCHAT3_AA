@@ -171,7 +171,7 @@ const Chatpage = () =>{
             <InputTab onSubmit={onEnterInput}>
                 <InputBox 
                     type="text" 
-                     autoComplete="new-password"
+                     autoComplete="off"
                     placeholder="Ask Anything about PDF..." 
                     onChange={inputChange} value={userInput}
                 />
